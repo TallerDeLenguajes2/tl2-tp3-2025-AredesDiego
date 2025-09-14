@@ -1,37 +1,30 @@
 public class Cadete
 {
-    public int Id { get; }
-    public string? nombre;
-    private string? direccion;
-    private int telefono;
+    public int Id { get; private set; }
+    public string Nombre { get; private set; }
+    public string Direccion { get; private set; }
+    public int Telefono { get; private set; }
 
     public Cadete(int id, string nombre, string direccion, int telefono)
     {
         Id = id;
-        this.nombre = nombre;
-        this.direccion = direccion;
-        this.telefono = telefono;
+        Nombre = nombre;
+        Direccion = direccion;
+        Telefono = telefono;
     }
 
-    public double JornalACobrar(List<Pedido> todosLosPedidos)
+    public double CalcularJornal(int cantidadPedidosEntregados)
     {
-        return CantidadPedidosEntregados(todosLosPedidos) * 500;
+        return cantidadPedidosEntregados * 500;
     }
 
-    private int CantidadPedidosEntregados(List<Pedido> todosLosPedidos)
+    public string ObtenerInformacionCadete()
     {
-        int contador = 0;
-
-        foreach (var pedidoActual in todosLosPedidos)
-        {
-            // Verifica si el pedido está asignado a ESTE cadete y está entregado
-            if (pedidoActual.CadeteAsignado == this && pedidoActual.Estado)
-            {
-                contador++;
-            }
-        }
-
-        return contador;
+        return $"ID: {Id}\nNombre: {Nombre}\nDirección: {Direccion}\nTeléfono: {Telefono}";
     }
 
+    public string ObtenerDatosBasicos()
+    {
+        return $"Cadete {Id}: {Nombre}";
+    }
 }

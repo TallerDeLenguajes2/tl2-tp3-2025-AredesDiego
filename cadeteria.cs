@@ -1,71 +1,29 @@
+using System.Linq;
+
 public class Cadeteria
 {
-    public string? Nombre { get; }
-    public int Telefono { get; }
-    public List<Cadete> ListadoCadetes { get; }
-    public List<Pedido> ListadoPedidos { get; }
+    public string Nombre { get; private set; }
+    public int Telefono { get; private set; }
+    public List<Cadete> ListadoCadetes { get; private set; }
+    public List<Pedido> ListadoPedidos { get; private set; }
 
     public Cadeteria(string nombre, int telefono, List<Cadete> cadetes)
     {
         Nombre = nombre;
         Telefono = telefono;
-
-        if (cadetes != null)
-            ListadoCadetes = cadetes;
-        else
-            ListadoCadetes = new List<Cadete>();
-
+        ListadoCadetes = cadetes ?? new List<Cadete>();
         ListadoPedidos = new List<Pedido>();
     }
 
-
-    public void DarDeAltaPedido()
+    public bool CrearPedido(bool estado, string nombreCliente, string direccionCliente,
+                          int telefonoCliente, int nroPedido, string observaciones)
     {
-        Console.WriteLine("=== Alta de Pedido ===");
-
-        Console.Write("Estado del pedido (true=entregado / false=pendiente): ");
-        bool estado = bool.Parse(Console.ReadLine());
-
-        Console.Write("Número de pedido: ");
-        int nro = int.Parse(Console.ReadLine());
-
-        Console.WriteLine("Datos del Cliente:");
-        Console.Write("Nombre: ");
-        string nombreCliente = Console.ReadLine();
-        Console.Write("Dirección: ");
-        string direccionCliente = Console.ReadLine();
-        Console.Write("Teléfono: ");
-        string telefonoCliente = Console.ReadLine();
-
-        Console.Write("Observaciones: ");
-        string obs = Console.ReadLine();
-
         var cliente = new Cliente(nombreCliente, direccionCliente, telefonoCliente);
-
-        var nuevoPedido = new Pedido(estado, cliente, nro, obs);
+        var nuevoPedido = new Pedido(estado, cliente, nroPedido, observaciones);
 
         ListadoPedidos.Add(nuevoPedido);
-
-        Console.WriteLine($"Pedido {nro} dado de alta correctamente.\n");
+        return true;
     }
-    public Cliente AsignarloACadete(int idPedido, Cliente cliente, List<Pedido> ListadoPedidos)
-    {
-        List<Pedido> pedidoEncontrado = new List<Pedido>();
-        Cliente clienteReasignar = null;
-
-        foreach (var pedido in ListadoPedidos)
-        {
-            if (pedido.Nro == idPedido)
-            {
-                pedidoEncontrado.Add(pedido);
-                ListadoPedidos.Remove(pedido);
-                break;
-            }
-        }
-
-        return clienteReasignar;
-    }
-
     public bool AsignarCadeteAPedido(int idCadete, int idPedido)
     {
         var pedido = ListadoPedidos.FirstOrDefault(p => p.Nro == idPedido);
@@ -77,41 +35,67 @@ public class Cadeteria
         pedido.CadeteAsignado = cadete;
         return true;
     }
-
     public bool CambiarEstadoPedido(int idPedido, bool nuevoEstado)
     {
-        foreach (var pedido in ListadoPedidos)
-        {
-            if (pedido.Nro == idPedido)
-            {
-                pedido.Estado = nuevoEstado;
-                return true;
-            }
-        }
+        var pedido = ListadoPedidos.FirstOrDefault(p => p.Nro == idPedido);
 
-        foreach (var cadete in ListadoCadetes)
-        {
-            foreach (var pedido in ListadoPedidos)
-            {
-                if (pedido.Nro == idPedido)
-                {
-                    pedido.Estado = nuevoEstado;
-                    return true;
-                }
-            }
-        }
+        if (pedido == null)
+            return false;
 
-        return false;
+        pedido.Estado = nuevoEstado;
+        return true;
     }
 
-    public double JornalACobrar(int idCadete)
+    public double CalcularJornalCadete(int idCadete)
     {
         return ListadoPedidos
-            .Where(p => p.CadeteAsignado?.Id == idCadete && p.Estado == true)
-            .Count() * 500;
+            .Count(p => p.CadeteAsignado?.Id == idCadete && p.Estado) * 500;
     }
-    
+    public string ObtenerInformacionPedido(int idPedido)
+    {
+        var pedido = ListadoPedidos.FirstOrDefault(p => p.Nro == idPedido);
+        return pedido?.ObtenerInformacionCompleta() ?? "Pedido no encontrado";
+    }
+    public string ObtenerListaCadetes()
+    {
+        if (ListadoCadetes.Count == 0)
+            return "No hay cadetes registrados";
+
+        string lista = "Lista de Cadetes:\n";
+        foreach (var cadete in ListadoCadetes)
+        {
+            lista += $"- {cadete.ObtenerInformacionCadete()}\n";
+        }
+        return lista;
+    }
+    public string ObtenerListaPedidos()
+    {
+        if (ListadoPedidos.Count == 0)
+            return "No hay pedidos registrados";
+
+        string lista = "Lista de Pedidos:\n";
+        foreach (var pedido in ListadoPedidos)
+        {
+            lista += $"- Pedido {pedido.Nro}: {(pedido.Estado ? "Entregado" : "Pendiente")}\n";
+        }
+        return lista;
+    }
+    public bool ReasignarPedido(int idPedido, int idNuevoCadete)
+    {
+        var pedido = ListadoPedidos.FirstOrDefault(p => p.Nro == idPedido);
+        var nuevoCadete = ListadoCadetes.FirstOrDefault(c => c.Id == idNuevoCadete);
+
+        if (pedido == null || nuevoCadete == null)
+            return false;
+
+        pedido.CadeteAsignado = nuevoCadete;
+        return true;
+    }
+    public int ObtenerProximoNumeroPedido()
+    {
+        if (ListadoPedidos.Count == 0)
+            return 1;
+
+        return ListadoPedidos.Max(p => p.Nro) + 1;
+    }
 }
-
-
-

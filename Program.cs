@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-string rutaArchivoPedido = "pedido.csv";
+﻿string rutaArchivoPedido = "pedido.csv";
 string rutaArchivoCadete = "cadetes.csv";
 
 Console.WriteLine("Seleccione el tipo de datos a cargar (1 = CSV, 2 = JSON):");
@@ -28,14 +25,29 @@ List<Pedido> Lpedido = accesoPedidos.Cargar(rutaArchivoPedido);
 List<Cadete> Lcadete = accesoCadetes.Cargar(rutaArchivoCadete);
 
 Random random = new Random();
+foreach (var pedido in Lpedido)
+{
+    if (Lcadete != null && Lcadete.Count > 0)
+    {
+        int indexAleatorio = random.Next(Lcadete.Count);
+        pedido.CadeteAsignado = Lcadete[indexAleatorio];
+        
+        pedido.Estado = random.Next(2) == 1;
+    }
+}
 
 Cadeteria cadeteria1 = new Cadeteria("Merlina", 1245125, Lcadete);
 
-List<Cadeteria> cadeterias = new List<Cadeteria>();
-cadeterias.Add(cadeteria1);
+if (Lpedido != null)
+{
+    foreach (var pedido in Lpedido)
+    {
+        cadeteria1.ListadoPedidos.Add(pedido);
+    }
+}
 
 Informe informe = new Informe();
-informe.mostrarInformeCadeteria(cadeterias);
+string reporte = informe.GenerarInformeCadeteria(new List<Cadeteria> { cadeteria1 });
 
-Console.ReadKey();
+Console.WriteLine(reporte);
 

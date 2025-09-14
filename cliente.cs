@@ -1,20 +1,23 @@
-using System.Diagnostics.Contracts;
 public class Cliente
 {
-    public Cliente() {} 
-    public Cliente(string? nombreCliente, string? direccionCliente, string? telefonoCliente)
+    public string Nombre { get; set; }
+    public string Direccion { get; set; }
+    public int Telefono { get; set; }
+    public string DatosDeReferenciaDireccion { get; set; }
+
+    public Cliente(string nombre, string direccion, int telefono)
     {
-        NombreCliente = nombreCliente;
-        DireccionCliente = direccionCliente;
-        TelefonoCliente = telefonoCliente;
+        Nombre = nombre;
+        Direccion = direccion;
+        Telefono = telefono;
+        DatosDeReferenciaDireccion = "";
     }
 
-    public string? nombre { get; set; }
-    public string? direccion { get; set; }
-    public int telefono { get; set; }
-    public string? DatosDeReferenciaDireccion { get; set; }
-    public string? NombreCliente { get; }
-    public string? DireccionCliente { get; }
-    public string? TelefonoCliente { get; }
+    public Cliente(string nombre, string direccion, int telefono, string datosReferencia)
+    {
+        Nombre = nombre;
+        Direccion = direccion;
+        Telefono = telefono;
+        DatosDeReferenciaDireccion = datosReferencia;
+    }
 }
-
